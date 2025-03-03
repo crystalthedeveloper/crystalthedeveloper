@@ -7,27 +7,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     try {
-        // Refresh session first
+        console.log("🔄 Checking session...");
+
+        // 🔄 Ensure Supabase has initialized the session before checking
+        await new Promise(resolve => setTimeout(resolve, 500)); // Delay check
+
+        // ✅ First, try to refresh the session
         await supabaseClient.auth.refreshSession();
 
-        // Check for session with getSession()
-        const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+        // ✅ Now check if user exists
+        const { data: userData, error: userError } = await supabaseClient.auth.getUser();
 
-        if (sessionError || !sessionData.session) {
+        if (userError || !userData?.user) {
+            console.warn("⚠️ No user found, redirecting to login.");
             window.location.href = "https://www.crystalthedeveloper.ca/user-pages/login";
             return;
         }
 
-        // Allow the authenticated user access to the protected page
+        console.log("✅ Authenticated User:", userData.user);
+
+        // ✅ Redirect if user is on login page
         if (window.location.pathname === "/user-pages/login") {
             window.location.href = "https://www.crystalthedeveloper.ca/the-developer-clown-hunt-fps";
         }
     } catch (err) {
+        console.error("❌ Error in session check:", err);
         window.location.href = "https://www.crystalthedeveloper.ca/user-pages/login";
     }
 
-    // Listen for real-time session changes
+    // ✅ Real-time session listener (handles logout cases)
     supabaseClient.auth.onAuthStateChange((event, session) => {
+        console.log("🔄 Auth state changed:", event);
         if (session && event === "SIGNED_IN") {
             window.location.href = "https://www.crystalthedeveloper.ca/the-developer-clown-hunt-fps";
         } else if (!session) {
