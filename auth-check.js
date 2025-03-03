@@ -7,6 +7,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     try {
+        // Refresh session first
+        await supabaseClient.auth.refreshSession();
+
         // Check for session with getSession()
         const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
 
