@@ -15,17 +15,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    // ✅ Function to update button based on user authentication status
     async function updateAuthButton() {
-        try {
-            // Wait for Supabase to initialize session
-            await supabaseClient.auth.refreshSession();
-            
-            // Fetch the current user
-            const { data: user, error } = await supabaseClient.auth.getUser();
+        const toggleBtn = document.querySelector("#auth-toggle-btn");
 
-            if (error) {
-                console.error("⚠️ Error fetching user:", error.message);
+        if (!toggleBtn) {
+            console.warn("⚠️ Login/logout button not found.");
+            return;
+        }
+
+        try {
+            // ✅ Replace refreshSession() with getSession()
+            const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+
+            if (sessionError || !sessionData.session) {
+                console.warn("⚠️ No active session found.");
+            }
+
+            // ✅ Now check for user
+            const { data: user, error: userError } = await supabaseClient.auth.getUser();
+
+            if (userError) {
+                console.error("⚠️ Error fetching user:", userError.message);
                 return;
             }
 
