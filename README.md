@@ -1,2 +1,2 @@
-# crystalthedeveloper-auth
-supabase auth
+# auth-check-supabase
+webflow-auth-check-supabase
