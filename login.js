@@ -1,51 +1,62 @@
 // Login
 document.addEventListener("DOMContentLoaded", async () => {
-    // Supabase configuration
     const SUPABASE_URL = "https://pkaeqqqxhkgosfppzmmt.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrYWVxcXF4aGtnb3NmcHB6bW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQyNzEyMjgsImV4cCI6MjA0OTg0NzIyOH0.dpxd-Y6Zvfu_1tcfELPNV7acq6X9tWMd8paNK28ncsc";
+    const SUPABASE_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrYWVxcXF4aGtnb3NmcHB6bW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQyNzEyMjgsImV4cCI6MjA0OTg0NzIyOH0.dpxd-Y6Zvfu_1tcfELPNV7acq6X9tWMd8paNK28ncsc";
 
     if (!window.supabase) {
         console.error("❌ Supabase library is not loaded.");
         return;
     }
 
-    // Initialize Supabase client
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Form & button elements
     const loginForm = document.querySelector("#login-form");
     const formError = document.querySelector("#form-error");
     const toggleBtn = document.querySelector("#auth-toggle-btn");
 
-    // ✅ Utility function to update button state
-    async function updateAuthButton() {
-        if (!toggleBtn) {
-            console.warn("⚠️ auth-toggle-btn not found. Skipping auth button update.");
-            return;
-        }
-
+    // ✅ Utility function to check session before getting user
+    async function getUserSession() {
         try {
-            const { data, error } = await supabaseClient.auth.getUser();
-            if (error) {
-                console.error("⚠️ Error fetching user:", error.message);
-                return;
+            const { data: sessionData, error } = await supabaseClient.auth.getSession();
+            if (error || !sessionData?.session) {
+                console.warn("⚠️ No active session found.");
+                return null;
             }
 
-            if (data?.user) {
-                console.log("✅ User logged in:", data.user);
-                toggleBtn.textContent = "Logout";
-                toggleBtn.dataset.authAction = "logout";
-            } else {
-                console.log("⚠️ No active session found.");
-                toggleBtn.textContent = "Login";
-                toggleBtn.dataset.authAction = "login";
+            const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+            if (userError || !userData?.user) {
+                console.warn("⚠️ Auth session missing! No user found.");
+                return null;
             }
+
+            console.log("✅ User logged in:", userData.user);
+            return userData.user;
         } catch (err) {
-            console.error("⚠️ Unexpected error in updateAuthButton:", err);
+            console.error("⚠️ Error checking session:", err);
+            return null;
         }
     }
 
-    // ✅ Run on page load to check authentication state
+    // ✅ Function to update button based on authentication status
+    async function updateAuthButton() {
+        if (!toggleBtn) {
+            console.warn("⚠️ auth-toggle-btn not found. Skipping update.");
+            return;
+        }
+
+        const user = await getUserSession();
+
+        if (user) {
+            toggleBtn.textContent = "Logout";
+            toggleBtn.dataset.authAction = "logout";
+        } else {
+            toggleBtn.textContent = "Login";
+            toggleBtn.dataset.authAction = "login";
+        }
+    }
+
+    // ✅ Check authentication state on page load
     await updateAuthButton();
 
     // ✅ Login form submission
@@ -63,10 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email,
-                password,
-            });
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
             if (error) throw error;
 
