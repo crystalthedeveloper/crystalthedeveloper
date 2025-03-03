@@ -1,15 +1,18 @@
-// login & logout button 
 document.addEventListener("DOMContentLoaded", async () => {
+    // Supabase credentials
     const SUPABASE_URL = "https://pkaeqqqxhkgosfppzmmt.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrYWVxcXF4aGtnb3NmcHB6bW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQyNzEyMjgsImV4cCI6MjA0OTg0NzIyOH0.dpxd-Y6Zvfu_1tcfELPNV7acq6X9tWMd8paNK28ncsc";
 
-    if (!SUPABASE_URL || !SUPABASE_KEY) {
-        console.error("❌ Supabase credentials missing! Check environment variables.");
+    // Ensure Supabase is available
+    if (!window.supabase) {
+        console.error("❌ Supabase library not loaded.");
         return;
     }
 
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Initialize Supabase client
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // ✅ Wait for element utility function
     function waitForElement(selector, timeout = 5000) {
         return new Promise((resolve, reject) => {
             const startTime = Date.now();
@@ -28,8 +31,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
+        // ✅ Ensure the button exists before proceeding
         const toggleBtn = await waitForElement("#auth-toggle-btn");
 
+        // ✅ Function to update authentication button state
         async function updateAuthButton() {
             try {
                 const { data, error } = await supabaseClient.auth.getUser();
@@ -52,8 +57,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         }
 
+        // ✅ Update button state on page load
         await updateAuthButton();
 
+        // ✅ Add event listener for login/logout actions
         toggleBtn.addEventListener("click", async () => {
             const authAction = toggleBtn.dataset.authAction;
             if (authAction === "logout") {
@@ -72,6 +79,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
     } catch (error) {
-        console.error(error.message);
+        console.warn(error.message);
     }
 });
