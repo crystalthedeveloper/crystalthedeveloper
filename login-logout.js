@@ -7,35 +7,55 @@ document.addEventListener("DOMContentLoaded", async () => {
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const toggleBtn = document.querySelector("#auth-toggle-btn");
 
-    // Update button based on user authentication status
-    async function updateAuthButton() {
-        const { data: { user } } = await supabaseClient.auth.getUser();
+    // Ensure the button exists before adding event listeners
+    if (!toggleBtn) {
+        console.error("⚠️ Auth toggle button not found in the DOM.");
+        return;
+    }
 
-        if (user) {
-            toggleBtn.textContent = "Logout";
-            toggleBtn.dataset.authAction = "logout";
-        } else {
-            toggleBtn.textContent = "Login";
-            toggleBtn.dataset.authAction = "login";
+    // ✅ Function to update button based on authentication status
+    async function updateAuthButton() {
+        try {
+            const { data: { user }, error } = await supabaseClient.auth.getUser();
+
+            if (error) {
+                console.error("⚠️ Error fetching user:", error.message);
+                return;
+            }
+
+            if (user) {
+                toggleBtn.textContent = "Logout";
+                toggleBtn.dataset.authAction = "logout";
+            } else {
+                toggleBtn.textContent = "Login";
+                toggleBtn.dataset.authAction = "login";
+            }
+        } catch (err) {
+            console.error("⚠️ Unexpected error in updateAuthButton:", err);
         }
     }
 
+    // Initial check for authentication state
     await updateAuthButton();
 
-    // Handle button click for login/logout
+    // ✅ Handle login/logout actions
     toggleBtn.addEventListener("click", async () => {
         const authAction = toggleBtn.dataset.authAction;
 
         if (authAction === "logout") {
             try {
                 const { error } = await supabaseClient.auth.signOut();
-                if (!error) {
+                if (error) {
+                    console.error("⚠️ Logout failed:", error.message);
+                } else {
+                    console.log("✅ Successfully logged out.");
                     window.location.href = "https://www.crystalthedeveloper.ca/";
                 }
-            } catch (error) {
-                // Optional: handle silent errors if needed
+            } catch (err) {
+                console.error("⚠️ Unexpected error during logout:", err);
             }
         } else if (authAction === "login") {
+            console.log("🔑 Redirecting to login...");
             window.location.href = "https://www.crystalthedeveloper.ca/user-pages/login";
         }
     });
