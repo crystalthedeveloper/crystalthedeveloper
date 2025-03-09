@@ -1,19 +1,17 @@
 // Login
 document.addEventListener("DOMContentLoaded", () => {
-    // Wait for Supabase to load
     if (!window.supabaseClient) {
         console.error("❌ Supabase Client not found! Ensure `supabaseClient.js` is loaded first.");
         return;
     }
 
     const supabase = window.supabaseClient;
-
     const loginForm = document.querySelector("#login-form");
     const formError = document.querySelector("#form-error");
 
     // Utility function to display error messages
     const displayError = (message) => {
-        formError.textContent = message; // Update error container
+        formError.textContent = message;
     };
 
     // Handle login form submission
@@ -38,10 +36,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (error) throw error;
 
-            displayError(""); // Clear errors if successful
+            // Step 2: Insert user into player_stats (if not exists)
+            const { data: user } = await supabase.auth.getUser();
+            if (!user || !user.user) throw new Error("User not found.");
+
+            const userId = user.user.id;
+            const firstName = user.user.user_metadata?.first_name || "Unknown";
+            const lastName = user.user.user_metadata?.last_name || "User";
+
+            // Check if user already exists in player_stats
+            const { data: existingPlayer } = await supabase
+                .from("player_stats")
+                .select("id")
+                .eq("user_id", userId)
+                .single();
+
+            if (!existingPlayer) {
+                await supabase.from("player_stats").insert([
+                    {
+                        user_id: userId,
+                        first_name: firstName,
+                        last_name: lastName,
+                        score: 0,
+                        kills: 0,
+                    },
+                ]);
+            }
+
+            // Redirect to game
             window.location.href = "https://www.crystalthedeveloper.ca/the-developer-clown-hunt-fps";
         } catch (err) {
-            displayError(`Login failed: ${err.message}`); // Display error message
+            displayError(`Login failed: ${err.message}`);
         }
     });
 });

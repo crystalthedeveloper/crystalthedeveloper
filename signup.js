@@ -33,24 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (error) throw error;
-      const userId = data.user?.id;
-
-      if (!userId) {
-        throw new Error("User ID not found after signup.");
-      }
-
-      // Step 2: Insert user data into player_stats table
-      const { error: insertError } = await supabase.from("player_stats").insert([
-        {
-          user_id: userId,
-          first_name: firstName,
-          last_name: lastName,
-          score: 0, // Default score
-          kills: 0, // Default kills
-        },
-      ]);
-
-      if (insertError) throw insertError;
 
       errorContainer.textContent = "Signup successful! Verify your email.";
       errorContainer.style.color = "green";
