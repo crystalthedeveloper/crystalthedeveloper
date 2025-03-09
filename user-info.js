@@ -1,11 +1,12 @@
 // Fetch the authenticated user name
 document.addEventListener("DOMContentLoaded", async () => {
-  const SUPABASE_URL = "https://pkaeqqqxhkgosfppzmmt.supabase.co";
-  const SUPABASE_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrYWVxcXF4aGtnb3NmcHB6bW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQyNzEyMjgsImV4cCI6MjA0OTg0NzIyOH0.dpxd-Y6Zvfu_1tcfELPNV7acq6X9tWMd8paNK28ncsc";
+  // Wait for Supabase to load
+  if (!window.supabaseClient) {
+    console.error("❌ Supabase Client not found! Ensure `supabaseClient.js` is loaded first.");
+    return;
+  }
 
-  // Properly initialize Supabase client
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const supabase = window.supabaseClient;
 
   try {
     // Fetch the currently logged-in user session

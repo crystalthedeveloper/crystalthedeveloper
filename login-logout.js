@@ -1,15 +1,17 @@
 // login & logout button 
 document.addEventListener("DOMContentLoaded", async () => {
-    const SUPABASE_URL = "https://pkaeqqqxhkgosfppzmmt.supabase.co";
-    const SUPABASE_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrYWVxcXF4aGtnb3NmcHB6bW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQyNzEyMjgsImV4cCI6MjA0OTg0NzIyOH0.dpxd-Y6Zvfu_1tcfELPNV7acq6X9tWMd8paNK28ncsc";
+    // Wait for Supabase to load
+    if (!window.supabaseClient) {
+        console.error("❌ Supabase Client not found! Ensure `supabaseClient.js` is loaded first.");
+        return;
+    }
 
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = window.supabaseClient;
     const toggleBtn = document.querySelector("#auth-toggle-btn");
 
     // Update button based on user authentication status
     async function updateAuthButton() {
-        const { data: { user } } = await supabaseClient.auth.getUser();
+        const { data: { user } } = await supabase.auth.getUser();
 
         if (user) {
             toggleBtn.textContent = "Logout";
@@ -28,7 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (authAction === "logout") {
             try {
-                const { error } = await supabaseClient.auth.signOut();
+                const { error } = await supabase.auth.signOut();
                 if (!error) {
                     window.location.href = "https://www.crystalthedeveloper.ca/";
                 }

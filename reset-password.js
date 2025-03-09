@@ -1,10 +1,12 @@
 // Reset Password
 document.addEventListener("DOMContentLoaded", () => {
-    const SUPABASE_URL = "https://pkaeqqqxhkgosfppzmmt.supabase.co";
-    const SUPABASE_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrYWVxcXF4aGtnb3NmcHB6bW10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQyNzEyMjgsImV4cCI6MjA0OTg0NzIyOH0.dpxd-Y6Zvfu_1tcfELPNV7acq6X9tWMd8paNK28ncsc";
+    // Wait for Supabase to load
+    if (!window.supabaseClient) {
+        console.error("❌ Supabase Client not found! Ensure `supabaseClient.js` is loaded first.");
+        return;
+    }
 
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = window.supabaseClient;
 
     const resetForm = document.querySelector("#reset-password-form");
     const messageContainer = document.querySelector("#message-container");
@@ -29,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Sending reset password email for:", email);
 
             // Send the reset password email
-            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
                 redirectTo: "https://www.crystalthedeveloper.ca/user-pages/update-password",
             });
 
