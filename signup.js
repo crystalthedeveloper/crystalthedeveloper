@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
       errorContainer.style.color = "green";
 
       setTimeout(() => {
-        window.location.href = "https://www.crystalthedeveloper.ca/user-pages/login";
+        window.location.href = "https://www.crystalthedeveloper.ca";
       }, 2000);
     } catch (err) {
       errorContainer.textContent = `Signup failed: ${err.message}`;
