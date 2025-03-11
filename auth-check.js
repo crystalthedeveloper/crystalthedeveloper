@@ -1,6 +1,6 @@
 // Check for user session
 document.addEventListener("DOMContentLoaded", async () => {
-    // Ensure Supabase is loaded
+    // ✅ Ensure Supabase is loaded
     if (!window.supabaseClient) {
         console.error("❌ Supabase Client not found! Ensure `supabaseClient.js` is loaded first.");
         return;
@@ -8,19 +8,33 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const supabase = window.supabaseClient;
 
-    // Check if the current page is the protected user account page
-    if (window.location.pathname === "/user-pages/user-account") {
-        try {
-            // Get session data
-            const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    try {
+        // ✅ Check user session
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        const isLoggedIn = sessionData?.session !== null;
 
-            // Redirect to login if no session found
-            if (sessionError || !sessionData?.session) {
-                window.location.replace("https://www.crystalthedeveloper.ca/user-pages/login");
-            }
-        } catch (err) {
-            console.error("❌ Error checking session:", err);
+        // ✅ Redirect if the user is on a protected page and not logged in
+        if (window.location.pathname === "/user-pages/user-account" && !isLoggedIn) {
             window.location.replace("https://www.crystalthedeveloper.ca/user-pages/login");
+            return;
         }
+
+        // ✅ Hide or Show sections based on login status
+        toggleProtectedSections(isLoggedIn);
+    } catch (err) {
+        console.error("❌ Error checking session:", err);
+        window.location.replace("https://www.crystalthedeveloper.ca/user-pages/login");
+    }
+
+    // ✅ Function to show/hide protected sections
+    function toggleProtectedSections(isLoggedIn) {
+        const protectedSections = ["unreal", "clown-hunt", "hoodie"];
+        
+        protectedSections.forEach((id) => {
+            const section = document.querySelector(`#${id}`);
+            if (section) {
+                section.style.display = isLoggedIn ? "block" : "none";
+            }
+        });
     }
 });
