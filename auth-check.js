@@ -14,7 +14,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const isLoggedIn = sessionData?.session !== null;
 
         // ✅ Redirect if the user is on a protected page and not logged in
-        if (window.location.pathname === "/user-pages/user-account" && !isLoggedIn) {
+        const protectedPages = ["/user-pages/user-account", "/user-pages/user-accounts"];
+        if (protectedPages.includes(window.location.pathname) && !isLoggedIn) {
             window.location.replace("https://www.crystalthedeveloper.ca/user-pages/login");
             return;
         }
@@ -29,7 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // ✅ Function to show/hide protected sections
     function toggleProtectedSections(isLoggedIn) {
         const protectedSections = ["unreal", "clown-hunt", "hoodie"];
-        
+
         protectedSections.forEach((id) => {
             const section = document.querySelector(`#${id}`);
             if (section) {
