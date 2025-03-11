@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // Redirect to game
-            window.location.href = "https://www.crystalthedeveloper.ca/the-developer-clown-hunt-fps";
+            window.location.href = "https://www.crystalthedeveloper.ca";
         } catch (err) {
             displayError(`Login failed: ${err.message}`);
         }
