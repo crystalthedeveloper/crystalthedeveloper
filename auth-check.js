@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // ✅ Function to show/hide protected sections
     function toggleProtectedSections(isLoggedIn) {
-        const protectedSections = ["unreal", "clown-hunt", "hoodie"];
+        const protectedSections = ["leaderboard", "hoodie"];
 
         protectedSections.forEach((id) => {
             const section = document.querySelector(`#${id}`);
