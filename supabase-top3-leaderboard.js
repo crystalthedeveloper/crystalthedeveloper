@@ -9,26 +9,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     const supabase = window.supabaseClient;
   
     try {
-      // ✅ Fetch the top 3 highest scores (include play_time too)
+      // ✅ Fetch more than 3 to account for duplicates
       const { data, error } = await supabase
         .from("player_stats")
         .select("first_name, last_name, score, kills, play_time")
         .order("score", { ascending: false })
-        .limit(3);
+        .limit(20); // Increase to ensure we get at least 3 unique players
   
-      if (error || !data.length) {
+      if (error || !data?.length) {
         console.error("❌ No high scores found.");
         updateLeaderboard(null);
         return;
       }
   
-      updateLeaderboard(data);
+      // ✅ Filter to only top 3 unique users (by first + last name)
+      const uniqueUsersMap = new Map();
+      const uniqueScores = [];
+  
+      for (const entry of data) {
+        const key = `${entry.first_name} ${entry.last_name}`;
+        if (!uniqueUsersMap.has(key)) {
+          uniqueUsersMap.set(key, true);
+          uniqueScores.push(entry);
+        }
+        if (uniqueScores.length === 3) break;
+      }
+  
+      updateLeaderboard(uniqueScores);
     } catch (err) {
       console.error("❌ Error fetching leaderboard:", err);
       updateLeaderboard(null);
     }
   
-    /** ✅ Format seconds to MM:SS */
     function formatTime(seconds) {
       if (!seconds || isNaN(seconds)) return "00:00";
       const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
@@ -36,7 +48,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       return `${mm}:${ss}`;
     }
   
-    /** ✅ Update leaderboard UI */
     function updateLeaderboard(scores) {
       const players = [
         { name: "#name-1", score: "#score-1", kills: "#kills-1", timer: "#timer-1" },
