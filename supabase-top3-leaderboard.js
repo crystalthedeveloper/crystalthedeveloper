@@ -9,12 +9,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const supabase = window.supabaseClient;
   
     try {
-      // ✅ Fetch more than 3 to account for duplicates
       const { data, error } = await supabase
         .from("player_stats")
         .select("first_name, last_name, score, kills, play_time")
         .order("score", { ascending: false })
-        .limit(20); // Increase to ensure we get at least 3 unique players
+        .limit(20);
   
       if (error || !data?.length) {
         console.error("❌ No high scores found.");
@@ -22,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
   
-      // ✅ Filter to only top 3 unique users (by first + last name)
+      // ✅ Filter to only top 3 unique users
       const uniqueUsersMap = new Map();
       const uniqueScores = [];
   
@@ -41,11 +40,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateLeaderboard(null);
     }
   
-    function formatTime(seconds) {
-      if (!seconds || isNaN(seconds)) return "00:00";
-      const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
-      const ss = String(seconds % 60).padStart(2, "0");
-      return `${mm}:${ss}`;
+    // ✅ Fallback if play_time is missing or blank
+    function sanitizeTime(playTime) {
+      if (!playTime || typeof playTime !== "string" || !playTime.includes(":")) {
+        return "00:00";
+      }
+      return playTime;
     }
   
     function updateLeaderboard(scores) {
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (nameEl) nameEl.textContent = `${player.first_name} ${player.last_name}`;
         if (scoreEl) scoreEl.textContent = player.score;
         if (killsEl) killsEl.textContent = player.kills;
-        if (timerEl) timerEl.textContent = formatTime(player.play_time);
+        if (timerEl) timerEl.textContent = sanitizeTime(player.play_time);
       });
     }
   });  
