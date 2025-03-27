@@ -11,17 +11,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       const { data, error } = await supabase
         .from("player_stats")
-        .select("first_name, last_name, score, kills, play_time")
-        .order("score", { ascending: false })
+        .select("first_name, last_name, logo, kills, play_time")
+        .order("logo", { ascending: false }) // ✅ Sort by logo points
         .limit(20);
   
       if (error || !data?.length) {
-        console.error("❌ No high scores found.");
+        console.error("❌ No leaderboard data found.");
         updateLeaderboard(null);
         return;
       }
   
-      // ✅ Filter to only top 3 unique users
+      // ✅ Only top 3 unique users
       const uniqueUsersMap = new Map();
       const uniqueScores = [];
   
@@ -40,7 +40,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateLeaderboard(null);
     }
   
-    // ✅ Fallback if play_time is missing or blank
     function sanitizeTime(playTime) {
       if (!playTime || typeof playTime !== "string" || !playTime.includes(":")) {
         return "00:00";
@@ -72,8 +71,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
   
         if (nameEl) nameEl.textContent = `${player.first_name} ${player.last_name}`;
-        if (scoreEl) scoreEl.textContent = player.score;
-        if (killsEl) killsEl.textContent = player.kills;
+        if (scoreEl) scoreEl.textContent = player.logo ?? "0"; // ✅ Now using logo
+        if (killsEl) killsEl.textContent = player.kills ?? "0";
         if (timerEl) timerEl.textContent = sanitizeTime(player.play_time);
       });
     }
