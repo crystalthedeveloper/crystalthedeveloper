@@ -1,3 +1,5 @@
+//auth.js
+// This file combines the functionality of auth-check.js, user-info.js, login-logout.js,
 document.addEventListener("DOMContentLoaded", async () => {
   const supabase = window.supabaseClient;
   const toggleBtn = document.querySelector("#auth-toggle-btn");
@@ -54,12 +56,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // ✅ Display user greeting
+  // ✅ Display user greeting only if session exists
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    const { data: { user } } = await supabase.auth.getUser();
-    const firstName = user?.user_metadata?.first_name || "User";
-    if (userInfoEl) userInfoEl.textContent = session && user ? `Welcome, ${firstName}!` : "Welcome";
+
+    if (session && session.user) {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      const firstName = user?.user_metadata?.first_name || "User";
+      if (userInfoEl) userInfoEl.textContent = `Welcome, ${firstName}!`;
+    } else {
+      if (userInfoEl) userInfoEl.textContent = "Welcome";
+    }
   } catch {
     if (userInfoEl) userInfoEl.textContent = "Welcome";
   }
