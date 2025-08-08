@@ -20,11 +20,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    const user = session.user;
-
-    // Retrieve the first_name from user metadata
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      updateUserInfo("Welcome");
+      return;
+    }
     const firstName = user.user_metadata?.first_name || "User";
     updateUserInfo(`Welcome, ${firstName}!`);
+
   } catch (err) {
     updateUserInfo("Welcome");
   }
