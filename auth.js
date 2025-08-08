@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ✅ Show/hide sections like leaderboard or hoodie
   function toggleProtectedSections(isLoggedIn) {
-    const protectedSections = ["leaderboard", "hoodie"];
+    const protectedSections = ["account", "hoodie"];
     protectedSections.forEach((id) => {
       const section = document.querySelector(`#${id}`);
       if (section) {
